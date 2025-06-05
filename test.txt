@@ -1,0 +1,8 @@
+ORANGE - not assigned / not available 
+YELLOW- assigned, ready to build 
+CYAN - Built, ready to testing
+BLUE - tested and ready to dispatch
+
+LIGHT GREEN - dispatched but not reached
+DARK GREEN - delivered COMPLETED
+RED - Cancelled
