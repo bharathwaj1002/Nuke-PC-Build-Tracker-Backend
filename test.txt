@@ -1,8 +1,10 @@
-ORANGE - not assigned / not available 
-YELLOW- assigned, ready to build 
-CYAN - Built, ready to testing
-BLUE - tested and ready to dispatch
-
-LIGHT GREEN - dispatched but not reached
-DARK GREEN - delivered COMPLETED
-RED - Cancelled
+[program:gunicorn-buildtracker]
+directory=/home/nukepcadmin/Nuke-PC-Build-Tracker-Backend
+command=/home/nukepcadmin/appenv/bin/gunicorn --workers 3 --bind unix:/home/nukepcadmin/Nuke-PC-Build-Tracker-Backend/buildtracker.sock backend.wsgi:application
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/gunicorn/gunicorn-buildtracker.err.log
+stdout_logfile=/var/log/gunicorn/gunicorn-buildtracker.out.log
+user=nukepcadmin
+group=nukepcadmin
+environment=PATH="/home/nukepcadmin/appenv/bin"

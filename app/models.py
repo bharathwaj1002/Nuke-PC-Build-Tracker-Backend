@@ -35,6 +35,7 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(email=email, password=password, role=role, **extra_fields)
 
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=30, choices=ROLE_CHOICES)
@@ -151,8 +152,39 @@ class StatusLog(models.Model):
 
 class Checklist(models.Model):
     build = models.OneToOneField(Build, on_delete=models.CASCADE, related_name='checklist')
-    driver_versions = models.TextField()
-    chipset_versions = models.TextField()
+
+    chipsetDrivers = models.TextField()
+    graphicsDrivers = models.TextField()
+    biosFirmwareVersion = models.TextField()
+    networkDrivers = models.TextField()
+    wifi = models.TextField()
+    bluetooth = models.TextField()
+    storagePartitioning = models.TextField()
+    lanDetection = models.TextField()
+    usbDetection = models.TextField()
+    headphone = models.TextField()
+    adminName = models.TextField()
+    resizableBar = models.TextField()
+    ramXmpProfile = models.TextField()
+    prime95Test = models.TextField()
+    operatingSystem = models.TextField()
+    antivirusActivation = models.TextField()
+    basicSoftwareInstallation = models.TextField()
+    cinebenchR23SingleCoreStock = models.TextField()
+    cinebenchR23MulticoreStock = models.TextField()
+    cpuTemperatureIdleLoadStress = models.TextField()
+    gpuTemperatureIdleLoadStress = models.TextField()
+    game1AvgFps = models.TextField()
+    game2AvgFps = models.TextField()
+    premiereRenderTime = models.TextField()
+    dateOfBenchmark = models.DateField()
+    buildBy = models.TextField()
+    testedBy = models.TextField()
+
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Checklist for Build {self.build.id}"
 
 class InvoiceStatus(models.Model):
     build = models.OneToOneField(Build, on_delete=models.CASCADE, related_name='invoice_status')

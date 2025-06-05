@@ -72,7 +72,6 @@ def build_list_create(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)  # Debugging line
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -92,7 +91,6 @@ def build_detail(request, pk):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        print("PUT Errors:", serializer.errors)  # ← More useful than just print
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
@@ -137,19 +135,12 @@ def component_detail(request, pk):
         component.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 @api_view(['GET', 'POST'])
 def status_log_list_create(request):
     if request.method == 'GET':
         logs = StatusLog.objects.all()
         serializer = StatusLogSerializer(logs, many=True)
         return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = StatusLogSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'POST':
         serializer = StatusLogSerializer(data=request.data)
         if serializer.is_valid():
@@ -206,11 +197,30 @@ def checklist_list_create(request):
         checklists = Checklist.objects.all()
         serializer = ChecklistSerializer(checklists, many=True)
         return Response(serializer.data)
+
     elif request.method == 'POST':
-        serializer = ChecklistSerializer(data=request.data)
+        build_id = request.data.get('build')
+
+        if not build_id:
+            return Response({"error": "Build ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            build = Build.objects.get(id=build_id)
+        except Build.DoesNotExist:
+            return Response({"error": "Build not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            checklist = Checklist.objects.get(build=build)
+            # Update existing checklist
+            serializer = ChecklistSerializer(checklist, data=request.data, partial=True)
+        except Checklist.DoesNotExist:
+            # Create new checklist
+            serializer = ChecklistSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer.save(build=build)  # Ensure the checklist is linked to the build
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
