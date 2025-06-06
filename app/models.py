@@ -53,6 +53,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 class Build(models.Model):
+    id = models.IntegerField(primary_key=True)
     STATUS_CHOICES = [
         ('Components Pending', 'Components Pending'),
         ('Components Assigned', 'Components Assigned'),
