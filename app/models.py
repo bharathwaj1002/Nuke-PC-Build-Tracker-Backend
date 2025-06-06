@@ -69,7 +69,6 @@ class Build(models.Model):
     buildType = models.CharField(max_length=20, choices=[('Offer', 'Offer'), ('Normal', 'Normal')])
     deliveryType = models.CharField(max_length=20, choices=[('In-Person', 'In-Person'), ('Shipment', 'Shipment')])
     location = models.CharField(max_length=100)
-    # qualityCheckCompleted = models.BooleanField(default=False)
     qualityCheckBy = models.CharField(max_length=100, null=True, blank=True)  # <-- NEW
     qualityCheckDate = models.DateTimeField(null=True, blank=True)
     eta = models.DateField(null=True, blank=True)
