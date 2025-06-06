@@ -17,6 +17,7 @@ urlpatterns = [
     path('get-status-log/<int:build_id>', views.get_status_log, name='get-status-log'),
 
     path('checklists/', views.checklist_list_create, name='checklist-list'),
+    path('get-checklist/<int:build_id>', views.get_checklist, name='get-checklist'),
 
     path('invoice-statuses/', views.invoice_status_list_create, name='invoice-status-list'),
     

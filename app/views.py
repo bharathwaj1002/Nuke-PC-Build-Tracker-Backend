@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -223,6 +224,12 @@ def checklist_list_create(request):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+def get_checklist(request, build_id):
+    checklist = get_object_or_404(Checklist, build__id=build_id)
+    serializer = ChecklistSerializer(checklist)
+    return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
 def invoice_status_list_create(request):
