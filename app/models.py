@@ -123,6 +123,7 @@ class Build(models.Model):
         return f"{self.customerName} - {self.enquiryId} ({self.currentStage})"
 class Component(models.Model):
     build = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='components')
+    price = models.IntegerField(max_length=7)
     name = models.CharField(max_length=100)
     serialNumber = models.CharField(max_length=100, null=True, blank=True)
     eta = models.DateField(null=True, blank=True)
