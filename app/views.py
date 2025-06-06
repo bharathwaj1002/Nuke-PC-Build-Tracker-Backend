@@ -13,9 +13,10 @@ from .serializers import (
 )
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def build_list_create(request):
     if request.method == 'GET':
-        builds = Build.objects.all().order_by('-orderDate')
+        builds = Build.objects.all().order_by('id')
         serialized_builds = []
 
         # Define the correct order of stages
