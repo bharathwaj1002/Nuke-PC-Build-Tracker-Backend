@@ -58,11 +58,17 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     "http://localhost:3000",
     "http://localhost:3001",
+    "https://nuke-pc-tracker.vercel.app",
+    "https://www.nuke-pc-tracker.vercel.app"
 )
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000","http://localhost:3001"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000",
+                        "http://localhost:3001",
+                        "https://nuke-pc-tracker.vercel.app",
+                        "https://www.nuke-pc-tracker.vercel.app"
+                        ]
 
 ROOT_URLCONF = "backend.urls"
 
