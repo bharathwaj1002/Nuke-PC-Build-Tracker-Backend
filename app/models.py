@@ -135,7 +135,7 @@ class Component(models.Model):
         return bool(self.serialNumber)
 
     def __str__(self):
-        return f"{self.type} - {self.name} - {self.build.customerName} ({self.build.enquiryId})"
+        return f"{self.name} - {self.build.customerName} ({self.build.enquiryId})"
 class StatusLog(models.Model):
     build = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='status_logs')
     status = models.CharField(max_length=50)

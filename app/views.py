@@ -1,3 +1,5 @@
+import json
+import time
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,6 +13,65 @@ from .serializers import (
     BuildSerializer, ComponentSerializer, StatusLogSerializer,
     ChecklistSerializer, InvoiceStatusSerializer
 )
+from django.http import StreamingHttpResponse
+from threading import Lock
+from django.views.decorators.csrf import csrf_exempt
+
+
+sse_subscribers = []
+subscriber_lock = Lock()
+
+def broadcast_sse_update(data):
+    message = f"data: {json.dumps(data)}\n\n"
+    with subscriber_lock:
+        dead_subscribers = []
+        for subscriber in sse_subscribers:
+            try:
+                subscriber.write(message.encode('utf-8'))
+                subscriber.flush()
+            except Exception as e:
+                print("SSE client dropped:", e)
+                dead_subscribers.append(subscriber)
+        for sub in dead_subscribers:
+            sse_subscribers.remove(sub)
+
+@csrf_exempt
+def sse_build_updates(request):
+    # Django doesn't support streaming well with ASGI, so use WSGI + threading
+    def event_stream():
+        response = StreamingHttpResponse(stream(), content_type="text/event-stream")
+        response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
+        return response
+
+    def stream():
+        # Create a writeable wrapper
+        class Client:
+            def __init__(self):
+                self.buffer = []
+
+            def write(self, msg):
+                self.buffer.append(msg)
+
+            def flush(self):
+                yield from self.buffer
+                self.buffer.clear()
+
+        client = Client()
+        with subscriber_lock:
+            sse_subscribers.append(client)
+
+        try:
+            while True:
+                # Keep the connection alive
+                yield b": keep-alive\n\n"
+                time.sleep(10)
+                yield from client.flush()
+        except GeneratorExit:
+            with subscriber_lock:
+                sse_subscribers.remove(client)
+
+    return event_stream()
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
@@ -71,11 +132,56 @@ def build_list_create(request):
     
     elif request.method == 'POST':
         serializer = BuildSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+    if serializer.is_valid():
+            build = serializer.save()
+
+            # Build full enriched build data (like GET does)
+            stage_order = [
+                'Components Pending',
+                'Components Assigned',
+                'Build Started',
+                'Build Completed',
+                'Testing Started',
+                'Test Completed',
+                'Ready for Shipment',
+                'Shipped'
+            ]
+
+            def stage_index(stage):
+                try:
+                    return stage_order.index(build.currentStage)
+                except ValueError:
+                    return -1
+
+            build_data = BuildSerializer(build).data
+            current_stage_idx = stage_index(build.currentStage)
+
+            build_completed_log = (
+                StatusLog.objects
+                .filter(build=build, status="Build Completed", action="advance")
+                .order_by('-timestamp')
+                .first()
+                if current_stage_idx >= stage_index("Build Completed")
+                else None
+            )
+
+            test_completed_log = (
+                StatusLog.objects
+                .filter(build=build, status="Test Completed", action="advance")
+                .order_by('-timestamp')
+                .first()
+                if current_stage_idx >= stage_index("Test Completed")
+                else None
+            )
+
+            build_data["buildCompletedDate"] = build_completed_log.timestamp if build_completed_log else None
+            build_data["testCompletedDate"] = test_completed_log.timestamp if test_completed_log else None
+
+            # Push full build data to connected clients
+            broadcast_sse_update(build_data)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET', 'POST', 'DELETE'])
