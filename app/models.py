@@ -76,6 +76,8 @@ class Build(models.Model):
     orderDate = models.DateField()
     enquiryId = models.CharField(max_length=50)
     paymentDone = models.DecimalField(max_digits=10, decimal_places=2)
+    dateOfInitialPayment = models.DateField(null=True, blank=True)
+    dateOfFinalPayment = models.DateField(null=True, blank=True)
     totalAmount = models.DecimalField(max_digits=10, decimal_places=2)
     balancePayment = models.DecimalField(max_digits=10, decimal_places=2)
     adminName = models.CharField(max_length=100)

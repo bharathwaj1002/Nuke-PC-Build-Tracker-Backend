@@ -74,6 +74,7 @@ def build_list_create(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -93,6 +94,8 @@ def build_detail(request, pk):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        print(serializer.errors)
+        print(request.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
