@@ -58,8 +58,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://nuke-pc-tracker.vercel.app",
-    "https://www.nuke-pc-tracker.vercel.app"
+    "https://tracker.nukpc.com",
+    "https://www.tracker.nukpc.com", "https://93041fc8.nuke-pc-build-tracker.pages.dev", "https://www.93041fc8.nuke-pc-build-tracker.pages.dev"
 )
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -67,7 +67,11 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000",
                         "http://localhost:3001",
                         "https://nuke-pc-tracker.vercel.app",
-                        "https://www.nuke-pc-tracker.vercel.app"
+                        "https://www.nuke-pc-tracker.vercel.app",
+                        "https://tracker.nukpc.com",
+                        "https://www.tracker.nukpc.com",
+                        "https://93041fc8.nuke-pc-build-tracker.pages.dev",
+                        "https://www.93041fc8.nuke-pc-build-tracker.pages.dev"
                         ]
 
 ROOT_URLCONF = "backend.urls"
